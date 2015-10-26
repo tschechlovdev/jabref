@@ -96,7 +96,6 @@ import net.sf.jabref.util.Util;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
-import osx.macadapter.MacAdapter;
 
 /**
  * The main window of the application.
@@ -609,11 +608,7 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
         //if the events happen too early (ie when the window is not initialized yet), the
         //opened (double-clicked) documents are not displayed.
         if (OS.OS_X) {
-            try {
-                new MacAdapter().registerMacEvents(this);
-            } catch (Exception e) {
-                LOGGER.fatal("Could not interface with Mac OS X methods.", e);
-            }
+            LOGGER.fatal("This program is not designed to run at Mac OS X");
         }
     }
 
@@ -720,42 +715,6 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
         if (Globals.prefs.getBoolean(JabRefPreferences.SEARCH_PANEL_VISIBLE)) {
             sidePaneManager.show("search");
         }
-    }
-
-    // The MacAdapter calls this method when a ".bib" file has been double-clicked from the Finder.
-    public void openAction(String filePath) {
-        File file = new File(filePath);
-
-        // Check if the file is already open.
-        for (int i = 0; i < this.getTabbedPane().getTabCount(); i++) {
-            BasePanel bp = this.baseAt(i);
-            if ((bp.getFile() != null) && bp.getFile().equals(file)) {
-                //The file is already opened, so just raising its tab.
-                this.getTabbedPane().setSelectedComponent(bp);
-                return;
-            }
-        }
-
-        if (file.exists()) {
-            // Run the actual open in a thread to prevent the program
-            // locking until the file is loaded.
-            final File theFile = new File(filePath);
-            JabRefExecutorService.INSTANCE.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    open.openIt(theFile, true);
-                }
-            });
-        }
-    }
-
-    // General info dialog.  The MacAdapter calls this method when "About"
-    // is selected from the application menu.
-    public void about() {
-        // reuse the normal about action
-        // null as parameter is OK as the code of actionPerformed does not rely on the data sent in the event.
-        about.actionPerformed(null);
     }
 
     // General preferences dialog.  The MacAdapter calls this method when "Preferences..."
